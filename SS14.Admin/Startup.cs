@@ -70,6 +70,16 @@ namespace SS14.Admin
                     options.Scope.Add("profile");
                     options.GetClaimsFromUserInfoEndpoint = true;
 
+                    options.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        if (context.ProtocolMessage.RedirectUri.StartsWith("http://"))
+                        {
+                            context.ProtocolMessage.RedirectUri = string.Concat("https://",
+                                context.ProtocolMessage.RedirectUri.AsSpan("http://".Length));
+                        }
+                        return Task.CompletedTask;
+                    };
+
                     options.Events.OnTokenValidated = async ctx =>
                     {
                         var handler = ctx.HttpContext.RequestServices.GetRequiredService<LoginHandler>();
